@@ -39,10 +39,11 @@ app.get(
   Middleware.handleValidationError,
   async (req: Request, res: Response) => {
     try {
-      const limit = req.query?.limit as number | undefined;
-      const offset = req.query?.limit as number | undefined;
-      const record = await TodoInstance.findAll({ where: {}, limit, offset });
-      return res.json(record);
+      const limit = (req.query.limit as number | undefined) || 10;
+      const offset = req.query.offset as number | undefined;
+
+      const records = await TodoInstance.findAll({ where: {}, limit, offset });
+      return res.json(records);
     } catch (e) {
       return res.json({
         msg: "failed to read",
@@ -67,6 +68,33 @@ app.get(
         msg: "failed to read",
         status: 500,
         route: "/read/:id",
+      });
+    }
+  }
+);
+
+app.put(
+  "/update/:id",
+  TodoValidator.checkIdParam(),
+  Middleware.handleValidationError,
+  async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      const record = await TodoInstance.findOne({ where: { id } });
+
+      if (!record) {
+        return res.json({ msg: "Can not find existing record" });
+      }
+
+      const updatedRecord = await record.update({
+        completed: !record.getDataValue("completed"),
+      });
+      return res.json({ record: updatedRecord });
+    } catch (e) {
+      return res.json({
+        msg: "failed to read",
+        status: 500,
+        route: "/update/:id",
       });
     }
   }
