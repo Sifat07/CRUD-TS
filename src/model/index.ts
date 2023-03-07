@@ -6,6 +6,7 @@ interface TodoAttributes {
   title: string;
   completed: boolean;
 }
+
 export class TodoInstance extends Model<TodoAttributes> {}
 
 TodoInstance.init(
@@ -20,7 +21,7 @@ TodoInstance.init(
       allowNull: false,
     },
     completed: {
-      type: DataTypes.STRING,
+      type: DataTypes.BOOLEAN,
       allowNull: false,
       defaultValue: false,
     },

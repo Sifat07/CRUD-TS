@@ -16,7 +16,7 @@ app.use(express.json());
 
 app.post(
   "/create",
-  TodoValidator.checkCreateTodo,
+  TodoValidator.checkCreateTodo(),
   Middleware.handleValidationError,
   async (req: Request, res: Response) => {
     const id = uuidv4();
@@ -33,18 +33,25 @@ app.post(
   }
 );
 
-app.get("/read", async (req: Request, res: Response) => {
-  try {
-    const record = await TodoInstance.findAll({ where: {} });
-    return res.json(record);
-  } catch (e) {
-    return res.json({
-      msg: "failed to read",
-      status: 500,
-      route: "/read",
-    });
+app.get(
+  "/read",
+  TodoValidator.checkReadTodo(),
+  Middleware.handleValidationError,
+  async (req: Request, res: Response) => {
+    try {
+      const limit = req.query?.limit as number | undefined;
+      const offset = req.query?.limit as number | undefined;
+      const record = await TodoInstance.findAll({ where: {}, limit, offset });
+      return res.json(record);
+    } catch (e) {
+      return res.json({
+        msg: "failed to read",
+        status: 500,
+        route: "/read",
+      });
+    }
   }
-});
+);
 
 app.listen(port, () => {
   console.log("server is running on " + port);
